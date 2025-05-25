@@ -3,6 +3,7 @@ import subprocess
 from datetime import datetime
 from colorama import Fore, Back, init
 import msvcrt
+import requests
 
 init(autoreset=True)
 
@@ -126,7 +127,7 @@ def basic_commands():
         elif selected == 6:
             footer = run_command("git add .")
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            footer += "\n" + run_command(f'git commit -m "Автокоммит ({ts})"')
+            footer += "\n" + run_command(f'git commit -m "Auto commit ({ts})"')
         elif selected == 7:
             commits = run_command("git log --oneline").splitlines()
             for i, line in enumerate(commits):
@@ -236,6 +237,7 @@ def remote_management():
             "Удалить удалённый",
             "Получить изменения (pull)",
             "Отправить изменения (push)",
+            "Скачать файл с  удл. GIT",
             "Вернуться в главное меню"
         ]
         selected = display_menu(options, "\nУдалённые репозитории:", footer, selected)
@@ -255,12 +257,12 @@ def remote_management():
         elif selected == 3:
             branch = input("Ветка (по умолчанию main): ").strip() or "main"
             footer = run_command(f"git pull origin {branch} --allow-unrelated-histories")
-
         elif selected == 4:
             branch = input("Ветка (по умолчанию main): ").strip() or "main"
             footer = run_command(f"git push origin {branch}")
-
-        elif selected == 5:
+        if selected == 5:
+            footer = browse_and_download_remote_file()
+        elif selected == 6:
             return footer
 def gitignore_management():
     footer = ""
@@ -328,6 +330,28 @@ def gitignore_management():
             footer = "Базовый шаблон Python применён."
         elif selected == 4:
             return footer
+
+def browse_and_download_remote_file():
+    repo_url = input("Введите HTTPS-ссылку на репозиторий GitHub (например, https://github.com/user/repo): ").strip()
+    branch = input("Введите ветку (по умолчанию main): ").strip() or "main"
+    file_path = input("Введите путь к файлу (например, path/to/file.py): ").strip()
+
+    # Преобразуем URL в сырой файл
+    try:
+        user_repo = repo_url.replace("https://github.com/", "")
+        raw_url = f"https://raw.githubusercontent.com/{user_repo}/{branch}/{file_path}"
+        print(f"Скачивание: {raw_url}")
+
+        response = requests.get(raw_url)
+        if response.status_code == 200:
+            with open(os.path.basename(file_path), "wb") as f:
+                f.write(response.content)
+            return f"✅ Файл '{file_path}' успешно скачан."
+        else:
+            return f"[ERROR] Не удалось загрузить файл (HTTP {response.status_code})"
+
+    except Exception as e:
+        return f"[EXCEPTION] {e}"
 
 def clear_repository():
     confirm = input("Очистить весь git-репозиторий? (yes/no): ").strip().lower()
