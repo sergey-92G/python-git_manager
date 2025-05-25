@@ -305,6 +305,7 @@ def gitignore_management():
             template = [
                 "__pycache__/",
                 "*.py[cod]",
+                "*.pyc",
                 "*.pyo",
                 "*.pyd",
                 ".Python",
