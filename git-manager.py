@@ -242,19 +242,24 @@ def remote_management():
 
         if selected == 0:
             footer = run_command("git remote -v")
+
         elif selected == 1:
-            name = input("Имя: ").strip()
-            url = input("URL: ").strip()
+            name = input("Введите имя (например: origin): ").strip()
+            url = input("Введите URL (например: https://github.com/user/repo.git): ").strip()
             footer = run_command(f"git remote add {name} {url}")
+
         elif selected == 2:
-            name = input("Имя для удаления: ").strip()
+            name = input("Имя удалённого для удаления: ").strip()
             footer = run_command(f"git remote remove {name}")
+
         elif selected == 3:
             branch = input("Ветка (по умолчанию main): ").strip() or "main"
-            footer = run_command(f"git pull origin {branch}")
+            footer = run_command(f"git pull origin {branch} --allow-unrelated-histories")
+
         elif selected == 4:
             branch = input("Ветка (по умолчанию main): ").strip() or "main"
             footer = run_command(f"git push origin {branch}")
+
         elif selected == 5:
             return footer
 def gitignore_management():
